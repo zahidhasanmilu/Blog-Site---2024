@@ -13,11 +13,11 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 
 # models
-from App_account.models import User, Profile
-from App_shop.models import Product, Category,ProductImage
+# from App_account.models import User, Profile
+# from App_shop.models import Product, Category,ProductImage
 
 # forms
-from App_account.forms import SignUpForm
+# from App_account.forms import SignUpForm
 
 # message
 from django.contrib import messages
@@ -27,5 +27,9 @@ from django.db.models import Q
 
 
 ######################## Create your views here. #############################
-def Home(request):
-    return render(request, '')
+def home(request):
+    return render(request, 'home.html')
+
+
+def blogs(request):
+    return render(request, 'blogs.html')
