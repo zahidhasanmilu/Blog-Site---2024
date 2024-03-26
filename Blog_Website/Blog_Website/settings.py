@@ -40,10 +40,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 CUSTOM_APPS = [
+    'django_cleanup.apps.CleanupConfig',
     'blog.apps.BlogConfig',
+    'user_profile',
+    
 ]
 INSTALLED_APPS += CUSTOM_APPS
-
+####
+AUTH_USER_MODEL = 'user_profile.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
