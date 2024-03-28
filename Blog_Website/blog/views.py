@@ -19,6 +19,8 @@ from blog.models import Blog,Tag, Category, Comment
 # forms
 # from App_account.forms import SignUpForm
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 # message
 from django.contrib import messages
 
@@ -39,11 +41,27 @@ def home(request):
 
 
 def blogs(request):
-    blogs = Blog.objects.all().order_by('-created_date')
+    queryset = Blog.objects.all().order_by('-created_date')
     tags = Tag.objects.all().order_by('-created_date')
+    #paginator
+    page = request.GET.get('page', 1)
+    paginator = Paginator(queryset, 2)
     
+    try:
+        # Get the objects for the requested page
+        blogs = paginator.page(page)    
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        blogs = paginator.page(1)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        blogs = paginator.page(1)
+        return redirect('blogs')
+    
+
     context={
         'blogs':blogs,
-        'tags':tags
+        'tags':tags,
+        'paginator':paginator,
     }
     return render(request, 'blogs.html',context)
