@@ -13,7 +13,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 
 # models
-# from App_account.models import User, Profile
+from blog.models import Blog,Tag, Category, Comment
 # from App_shop.models import Product, Category,ProductImage
 
 # forms
@@ -28,8 +28,22 @@ from django.db.models import Q
 
 ######################## Create your views here. #############################
 def home(request):
-    return render(request, 'home.html')
+    blogs = Blog.objects.all().order_by('-created_date')
+    tags = Tag.objects.all().order_by('-created_date')
+    
+    context={
+        'blogs':blogs,
+        'tags':tags
+    }
+    return render(request, 'home.html',context)
 
 
 def blogs(request):
-    return render(request, 'blogs.html')
+    blogs = Blog.objects.all().order_by('-created_date')
+    tags = Tag.objects.all().order_by('-created_date')
+    
+    context={
+        'blogs':blogs,
+        'tags':tags
+    }
+    return render(request, 'blogs.html',context)
