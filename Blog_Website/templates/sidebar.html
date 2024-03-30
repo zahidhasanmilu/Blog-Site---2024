@@ -34,7 +34,7 @@
                     <div class="content">
                         <ul>
                             {% for cat in categories %}
-                            <li><a href="#">- {{cat.title}}</a></li>
+                            <li><a href="{% url 'catagory_blog' cat.slug %}">- {{cat.title}}</a></li>
                             {% endfor %}
                         </ul>
                     </div>
@@ -48,7 +48,7 @@
                     <div class="content">
                         <ul>
                             {% for tag in tags %}
-                            <li><a href="#">{{tag.title}}</a></li>         
+                            <li><a href="{% url 'tag_blogs' tag.slug %}">{{tag.title}}</a></li>         
                             {% endfor %}
                     
                         </ul>

@@ -65,3 +65,40 @@ def blogs(request):
         'paginator':paginator,
     }
     return render(request, 'blogs.html',context)
+
+
+def catagory_blog(request,slug):
+    category = get_object_or_404(Category, slug=slug)
+    blogs = category.category_blogs.all()
+    tags = Tag.objects.all().order_by('-created_date')
+    
+    context = {
+        'category':category,
+        'blogs':blogs,
+        'tags':tags
+    }
+    return render(request, 'category_blogs.html',context)
+
+def tag_blogs(request, slug):
+    tag = get_object_or_404(Tag, slug=slug)
+    blogs = tag.tag_blogs.all()
+    tags = Tag.objects.exclude(slug=slug).order_by('-created_date')
+    # tags = Tag.objects.all().order_by('-created_date')
+    
+    
+    context = {
+        'tag':tag,
+        'blogs':blogs,
+        'tags':tags
+    }
+    return render(request, 'tag_blogs.html',context)
+
+def blog_details(request, slug):
+    blog = get_object_or_404(Blog, slug=slug)
+    tags = Tag.objects.all().order_by('-created_date')
+    
+    context = {
+        'blog':blog,
+        'tags':tags
+    }
+    return render(request, 'post-details.html',context)
