@@ -81,7 +81,7 @@ class Comment(models.Model):
         User, related_name='user_comments', on_delete=models.CASCADE)
     blog = models.ForeignKey(
         Blog, related_name='blog_comments', on_delete=models.CASCADE)
-    likes = models.ManyToManyField(User, related_name='user_likes', blank=True)
+
     text = models.TextField()
     created_date = models.DateTimeField(auto_now_add=True)
 

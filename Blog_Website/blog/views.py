@@ -13,11 +13,11 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 
 # models
-from blog.models import Blog,Tag, Category, Comment
+from blog.models import Blog, Tag, Category, Comment
 # from App_shop.models import Product, Category,ProductImage
 
 # forms
-# from App_account.forms import SignUpForm
+from blog.forms import TextForm
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
@@ -32,24 +32,24 @@ from django.db.models import Q
 def home(request):
     blogs = Blog.objects.all().order_by('-created_date')
     tags = Tag.objects.all().order_by('-created_date')
-    
-    context={
-        'blogs':blogs,
-        'tags':tags
+
+    context = {
+        'blogs': blogs,
+        'tags': tags
     }
-    return render(request, 'home.html',context)
+    return render(request, 'home.html', context)
 
 
 def blogs(request):
     queryset = Blog.objects.all().order_by('-created_date')
     tags = Tag.objects.all().order_by('-created_date')
-    #paginator
+    # paginator
     page = request.GET.get('page', 1)
     paginator = Paginator(queryset, 2)
-    
+
     try:
         # Get the objects for the requested page
-        blogs = paginator.page(page)    
+        blogs = paginator.page(page)
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         blogs = paginator.page(1)
@@ -57,48 +57,75 @@ def blogs(request):
         # If page is not an integer, deliver first page.
         blogs = paginator.page(1)
         return redirect('blogs')
-    
 
-    context={
-        'blogs':blogs,
-        'tags':tags,
-        'paginator':paginator,
+    context = {
+        'blogs': blogs,
+        'tags': tags,
+        'paginator': paginator,
     }
-    return render(request, 'blogs.html',context)
+    return render(request, 'blogs.html', context)
 
 
-def catagory_blog(request,slug):
+def catagory_blog(request, slug):
     category = get_object_or_404(Category, slug=slug)
     blogs = category.category_blogs.all()
     tags = Tag.objects.all().order_by('-created_date')
-    
+
     context = {
-        'category':category,
-        'blogs':blogs,
-        'tags':tags
+        'category': category,
+        'blogs': blogs,
+        'tags': tags
     }
-    return render(request, 'category_blogs.html',context)
+    return render(request, 'category_blogs.html', context)
+
 
 def tag_blogs(request, slug):
     tag = get_object_or_404(Tag, slug=slug)
     blogs = tag.tag_blogs.all()
     tags = Tag.objects.exclude(slug=slug).order_by('-created_date')
     # tags = Tag.objects.all().order_by('-created_date')
-    
-    
+
     context = {
-        'tag':tag,
-        'blogs':blogs,
-        'tags':tags
+        'tag': tag,
+        'blogs': blogs,
+        'tags': tags
     }
-    return render(request, 'tag_blogs.html',context)
+    return render(request, 'tag_blogs.html', context)
+
 
 def blog_details(request, slug):
+    # Retrieve the blog post
     blog = get_object_or_404(Blog, slug=slug)
-    tags = Tag.objects.all().order_by('-created_date')
     
+    # Retrieve related blogs based on the category of the current blog
+    related_blogs = Blog.objects.filter(category=blog.category).exclude(slug=slug)[:3]
+    
+    # Retrieve all tags
+    tags = blog.tags.all().order_by('-created_date')
+    
+    # Initialize an empty form for comments
+    form = TextForm()
+    
+    # Handle form submission for adding comments
+    if request.method == "POST":
+        form = TextForm(request.POST)
+        if form.is_valid():
+            # Create a new comment associated with the blog post
+            Comment.objects.create(
+                user=request.user,
+                blog=blog,
+                text=form.cleaned_data.get('text')
+            )
+            # Redirect to the same blog post page after successful submission
+            return redirect('blog_details', slug=slug)
+
+    # Prepare context to be passed to the template
     context = {
-        'blog':blog,
-        'tags':tags
+        'blog': blog,
+        'tags': tags,
+        'related_blogs': related_blogs,
+        'form': form
     }
-    return render(request, 'post-details.html',context)
+    
+    # Render the template with the provided context
+    return render(request, 'post-details.html', context)
