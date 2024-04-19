@@ -36,10 +36,14 @@
                         </div>
                       </li>
               
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a class="nav-link" href="contact.html">Login</a>
-                    </li>
+                    </li> -->
                 </ul>
+                <form class="form-inline d-flex flex-nowrap my-2 ml-auto search-form" action="{% url 'search_blog' %}" method="GET">
+                    <input class="form-control px-5" name="search" type="text" placeholder="Search blogs" required>
+                    <button type="submit" class="btn btn-primary ml-1">Search</button>
+                </form>
             </div>
         </div>
     </nav>

@@ -13,7 +13,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 
 # models
-from blog.models import Blog, Tag, Category, Comment
+from blog.models import Blog, Tag, Category, Comment, Reply
 # from App_shop.models import Product, Category,ProductImage
 
 # forms
@@ -96,16 +96,17 @@ def tag_blogs(request, slug):
 def blog_details(request, slug):
     # Retrieve the blog post
     blog = get_object_or_404(Blog, slug=slug)
-    
+
     # Retrieve related blogs based on the category of the current blog
-    related_blogs = Blog.objects.filter(category=blog.category).exclude(slug=slug)[:3]
-    
+    related_blogs = Blog.objects.filter(
+        category=blog.category).exclude(slug=slug)[:3]
+
     # Retrieve all tags
     tags = blog.tags.all().order_by('-created_date')
-    
+
     # Initialize an empty form for comments
     form = TextForm()
-    
+
     # Handle form submission for adding comments
     if request.method == "POST":
         form = TextForm(request.POST)
@@ -126,6 +127,60 @@ def blog_details(request, slug):
         'related_blogs': related_blogs,
         'form': form
     }
-    
+
     # Render the template with the provided context
     return render(request, 'post-details.html', context)
+
+
+def add_reply(request, blog_id, comment_id):
+    blog = get_object_or_404(Blog, id=blog_id)
+    comment = get_object_or_404(Comment, id=comment_id)
+
+    form = TextForm()
+
+    if request.method == "POST":
+        form = TextForm(request.POST)
+        if form.is_valid():
+            Reply.objects.create(
+                user=request.user,
+                text=form.cleaned_data.get('text'),
+                comment=comment
+            )
+
+    return redirect('blog_details', slug=blog.slug)
+
+
+def search_blog(request):
+    recent_blogs = Blog.objects.order_by('-created_date')
+    tags = Tag.objects.order_by('-created_date')
+
+    search_item = request.GET.get('search')
+    
+    print(search_item)
+    if search_item:
+        blogs = Blog.objects.filter(
+            Q(title__icontains=search_item) 
+          
+        )
+        context = {
+            "blogs": blogs,
+            "recent_blogs": recent_blogs,
+            "tags": tags,
+            "search_item": search_item
+        }
+        return render(request, 'search.html', context)
+    # if search_item:
+    #     blogs = Blog.objects.filter(
+    #         Q(title__icontains=search_item) |
+    #         Q(category__title__icontains=search_item) |
+    #         Q(user__username__icontains=search_item) |
+    #         Q(tags__title__icontains=search_item)
+    #     ).distinct()
+
+    #     context = {
+    #         "blogs": blogs,
+    #         "recent_blogs": recent_blogs,
+    #         "tags": tags,
+    #         "search_item": search_item
+    #     }
+    #     return render(request, 'search.html', context)

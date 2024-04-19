@@ -8,4 +8,7 @@ urlpatterns = [
     path('tag_blogs/<str:slug>', views.tag_blogs, name="tag_blogs"),
     
     path('blog_details/<str:slug>', views.blog_details, name="blog_details"),
+    path("add_reply/<int:blog_id>/<int:comment_id>/", views.add_reply, name="add_reply"),
+    path("search_blog/", views.search_blog, name="search_blog"),
+
 ]

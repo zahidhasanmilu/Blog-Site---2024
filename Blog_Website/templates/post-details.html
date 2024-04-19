@@ -76,18 +76,46 @@
                       <div class="right-content">
                         <h4>{{comment.user.username}}<span>{{comment.created_date}}</span></h4>
                         <p>{{comment.text}}</p>
+
+                        <!-- Reply Comment Form -->
+                        <form id="comment-reply-form" action="{% url 'add_reply' blog.id comment.id %}" method="POST">
+                          {% csrf_token %}
+                          <div class="row">
+                            <div class="col-lg-12">
+                              <label for="reply-text">Your Reply:</label>
+                              <textarea id="reply-text" name="text" rows="6" cols="100" placeholder="Type your reply"
+                                required></textarea>
+                            </div>
+                            <div class="col-lg-12">
+                              {% if request.user.is_authenticated %}
+                              <button type="submit" id="submit-reply" class="main-button">Reply</button>
+                              {% else %}
+                              <a href="" id="login-to-comment" class="main-button">Login to Comment</a>
+                              {% endif %}
+                            </div>
+                          </div>
+                        </form>
+                        <!--End Reply Comment -->
+
+                      </div>
+                    </li>
+
+                    <!-- all reply comments  -->
+                    {% for reply in comment.comment_Replies.all %}
+                    <li class="replied">
+                      <div class="author-thumb">
+                        <img src="{{reply.user.get_profile_picture}}" alt="">
+                      </div>
+                      <div class="right-content">
+                        <h4>{{reply.user.username}}<span>{{reply.created_date}}</span></h4>
+                        <p>{{reply.text}}</p>
                       </div>
                     </li>
                     {% endfor %}
-                    <li class="replied">
-                      <div class="author-thumb">
-                        <img src="{% static 'assets/images/comment-author-02.jpg' %}" alt="">
-                      </div>
-                      <div class="right-content">
-                        <h4>Thirteen Man<span>May 20, 2020</span></h4>
-                        <p>In porta urna sed venenatis sollicitudin. Praesent urna sem, pulvinar vel mattis eget.</p>
-                      </div>
-                    </li>
+                    <!--End all reply comments  -->
+
+                    {% endfor %}
+
 
                   </ul>
                 </div>
@@ -102,23 +130,24 @@
                   <form id="comment" action="{% url 'blog_details' blog.slug %}" method="POST">
                     {% csrf_token %}
                     <div class="row">
-                        <div class="col-lg-12">
-                            <fieldset>
-                                <textarea  name="text" rows="6" id="message" placeholder="Type your comment" required=""></textarea>
-                            </fieldset>
-                        </div>
-                        <div class="col-lg-12">
-                            <fieldset>
-                                {% if request.user.is_authenticated %}
-                                <button type="submit" id="form-submit" class="main-button">Comment</button>
-                                {% else %}
-                                <a href="#" id="form-submit" class="main-button">Login to comment</a>
-                                {% endif %}
-                            </fieldset>
-                        </div>
+                      <div class="col-lg-12">
+                        <fieldset>
+                          <textarea name="text" rows="6" id="message" placeholder="Type your comment"
+                            required=""></textarea>
+                        </fieldset>
+                      </div>
+                      <div class="col-lg-12">
+                        <fieldset>
+                          {% if request.user.is_authenticated %}
+                          <button type="submit" id="form-submit" class="main-button">Comment</button>
+                          {% else %}
+                          <a href="#" id="form-submit" class="main-button">Login to comment</a>
+                          {% endif %}
+                        </fieldset>
+                      </div>
                     </div>
-                </form>
-                
+                  </form>
+
                 </div>
               </div>
             </div>
@@ -128,64 +157,63 @@
       <!-- sidebar -->
       <div class="col-lg-4">
         <div class="sidebar">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="sidebar-item search">
-                        <form id="search_form" name="gs" method="GET" action="#">
-                            <input type="text" name="q" class="searchText" placeholder="type to search..."
-                                autocomplete="on">
-                        </form>
-                    </div>
-                </div>
-                <div class="col-lg-12">
-                    <div class="sidebar-item recent-posts">
-                        <div class="sidebar-heading">
-                            <h2>Releted Blogs</h2>
-                        </div>
-                        <div class="content">
-                            <ul>
-                                {% for blog in related_blogs %}
-                                <li><a href="{% url 'blog_details' blog.slug %}">
-                                        <h5>{{blog.title}}</h5>
-                                        <span>{{blog.created_date}}</span>
-                                    </a></li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-12">
-                    <div class="sidebar-item categories">
-                        <div class="sidebar-heading">
-                            <h2>Categories</h2>
-                        </div>
-                        <div class="content">
-                            <ul>
-                                {% for cat in categories %}
-                                <li><a href="{% url 'catagory_blog' cat.slug %}">- {{cat.title}}</a></li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-12">
-                    <div class="sidebar-item tags">
-                        <div class="sidebar-heading">
-                            <h2>Tag Clouds</h2>
-                        </div>
-                        <div class="content">
-                            <ul>
-                                {% for tag in tags %}
-                                <li><a href="{% url 'tag_blogs' tag.slug %}">{{tag.title}}</a></li>         
-                                {% endfor %}
-                        
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="sidebar-item search">
+                <form id="search_form" name="gs" method="GET" action="#">
+                  <input type="text" name="q" class="searchText" placeholder="type to search..." autocomplete="on">
+                </form>
+              </div>
             </div>
+            <div class="col-lg-12">
+              <div class="sidebar-item recent-posts">
+                <div class="sidebar-heading">
+                  <h2>Releted Blogs</h2>
+                </div>
+                <div class="content">
+                  <ul>
+                    {% for blog in related_blogs %}
+                    <li><a href="{% url 'blog_details' blog.slug %}">
+                        <h5>{{blog.title}}</h5>
+                        <span>{{blog.created_date}}</span>
+                      </a></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-12">
+              <div class="sidebar-item categories">
+                <div class="sidebar-heading">
+                  <h2>Categories</h2>
+                </div>
+                <div class="content">
+                  <ul>
+                    {% for cat in categories %}
+                    <li><a href="{% url 'catagory_blog' cat.slug %}">- {{cat.title}}</a></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-12">
+              <div class="sidebar-item tags">
+                <div class="sidebar-heading">
+                  <h2>Tag Clouds</h2>
+                </div>
+                <div class="content">
+                  <ul>
+                    {% for tag in tags %}
+                    <li><a href="{% url 'tag_blogs' tag.slug %}">{{tag.title}}</a></li>
+                    {% endfor %}
+
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-    </div>
+      </div>
     </div>
   </div>
 </section>
